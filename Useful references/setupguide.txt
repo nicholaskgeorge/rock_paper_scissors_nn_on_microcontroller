@@ -1,0 +1,3 @@
+https://www.youtube.com/watch?v=-rI5l7HxSTI
+official firmwares:
+https://micropython.org/download/ESP32_GENERIC_S3/
