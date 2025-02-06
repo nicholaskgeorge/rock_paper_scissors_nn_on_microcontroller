@@ -62,14 +62,22 @@ CAMERA_PARAMETERS = {
     "xclk_freq": 20000000,
     "powerdown_pin": -1,
     "reset_pin": -1,
-    "frame_size": camera.FrameSize.R96X96,
+    "frame_size": camera.FrameSize.R128x128,
     "pixel_format": camera.PixelFormat.GRAYSCALE
 }
 
 
 cam = camera.Camera(**CAMERA_PARAMETERS)
 cam.init()
-cam.set_bmp_out(True) # this will produced uncompressed images which we need for preprocessing 
+cam.set_bmp_out(True) # this will produced uncompressed images which we need for preprocessing
+
+frame = cam.capture()
+if frame:
+    print("Captured a frame")
+else:
+    print("failed")
+
+
 
 # connect to access point
 sta = Sta()              # Station mode (i.e. need WiFi router)
@@ -98,13 +106,12 @@ if con and cam: # WiFi and camera are ready
    if con:
      print("entering con")
      # TCP server
-     port = 9999
+     port = 4000
      addr = soc.getaddrinfo('0.0.0.0', port)[0][-1]
      s = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
      s.setsockopt(soc.SOL_SOCKET, soc.SO_REUSEADDR, 1)
      s.bind(addr)
      s.listen(1)
-     print("done with shit")
      # s.settimeout(5.0)
      while True:
         cs, ca = s.accept()   # wait for client connect
@@ -118,7 +125,7 @@ if con and cam: # WiFi and camera are ready
            continue
         # We are authenticated, so continue serving
         cs.write(b'%s\r\n\r\n' % hdr['stream'])
-        pic=camera.Camera.capture
+        pic=cam.capture
         put=cs.write
         hr=hdr['frame']
         while True:

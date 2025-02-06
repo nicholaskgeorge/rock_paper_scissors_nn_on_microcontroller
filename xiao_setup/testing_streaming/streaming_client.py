@@ -34,14 +34,18 @@ dropped = 0 # drop frames count
 #vid = cv2.VideoCapture('http://192.168.4.44/ali/Baba40Robrs') # open webcam capture
 
 # 192.168.4.70 - XIAO esp32s3
-vid = cv2.VideoCapture('http://172.20.10.2:9999/xiao/Hi-Xiao-Ling') # open webcam capture
-
+print("establish connection")
+vid = cv2.VideoCapture('http://172.20.10.2:80/xiao/Hi-Xiao-Ling') # open webcam capture
+print("conection established")
 while True:
     ret, frame = vid.read() # get frame-by-frame
     #print(vid.isOpened(), ret)
     if frame is not None:
         if dropped > 0: dropped = 0 # reset
-        cv2.imshow('Video-44',frame) # display frame
+
+        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        cv2.imshow('Video-44',gray_frame) # display frame
         if cv2.waitKey(22) & 0xFF == ord('q'): # press q to quit
             break
     else:
