@@ -26,8 +26,9 @@
 
 import esp
 from Wifi import Sta
-import socket as soc
 import camera
+import socket as soc
+import machine 
 from time import sleep
 
 hdr = {
@@ -49,8 +50,26 @@ esp.osdebug(None)   # turn off debugging log. Uncomment to show debugging log
 UID = const('xiao')          # authentication user
 PWD = const('Hi-Xiao-Ling')  # authentication password
 
-cam = camera.init() # Camera
-print("Camera ready?: ", cam)
+# set camera parameters in a map because it is easer to layout well.
+CAMERA_PARAMETERS = {
+    "data_pins": [15, 17, 18, 16, 14, 12, 11, 48],
+    "vsync_pin": 38,
+    "href_pin": 47,
+    "sda_pin": 40,
+    "scl_pin": 39,
+    "pclk_pin": 13,
+    "xclk_pin": 10,
+    "xclk_freq": 20000000,
+    "powerdown_pin": -1,
+    "reset_pin": -1,
+    "frame_size": camera.FrameSize.R96X96,
+    "pixel_format": camera.PixelFormat.GRAYSCALE
+}
+
+
+cam = camera.Camera(**CAMERA_PARAMETERS)
+cam.init()
+cam.set_bmp_out(True) # this will produced uncompressed images which we need for preprocessing 
 
 # connect to access point
 sta = Sta()              # Station mode (i.e. need WiFi router)
@@ -70,18 +89,22 @@ else:
 
 if con and cam: # WiFi and camera are ready
    if cam:
+     """
      # set preffered camera setting
-     camera.framesize(10)     # frame size 800X600 (1.33 espect ratio)
+     camera.FrameSize(10)     # frame size 800X600 (1.33 espect ratio)
      camera.contrast(2)       # increase contrast
      camera.speffect(2)       # jpeg grayscale
+     """
    if con:
+     print("entering con")
      # TCP server
-     port = 80
+     port = 9999
      addr = soc.getaddrinfo('0.0.0.0', port)[0][-1]
      s = soc.socket(soc.AF_INET, soc.SOCK_STREAM)
      s.setsockopt(soc.SOL_SOCKET, soc.SO_REUSEADDR, 1)
      s.bind(addr)
      s.listen(1)
+     print("done with shit")
      # s.settimeout(5.0)
      while True:
         cs, ca = s.accept()   # wait for client connect
@@ -95,7 +118,7 @@ if con and cam: # WiFi and camera are ready
            continue
         # We are authenticated, so continue serving
         cs.write(b'%s\r\n\r\n' % hdr['stream'])
-        pic=camera.capture
+        pic=camera.Camera.capture
         put=cs.write
         hr=hdr['frame']
         while True:

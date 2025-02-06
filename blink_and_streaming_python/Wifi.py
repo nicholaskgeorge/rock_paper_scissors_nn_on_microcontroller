@@ -73,4 +73,3 @@ class Sta:
 
    def scan(my):
       return my.wlan.scan()   # Scan for available access points
-
