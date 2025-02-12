@@ -30,8 +30,8 @@ if frame:
 else:
     print("Failed to capture frame.")
 
-ssid = "Vidhula- Hotspot"
-password = "blueberry"
+ssid = "iPhone"
+password = "123456789"
 
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)

@@ -3,6 +3,8 @@ import network
 import time
 import socket
 
+print("runnxing")
+
 PORT = 80
 
 CAMERA_PARAMETERS = {
@@ -66,7 +68,7 @@ def serve_stream():
                 if frame:
                     conn.send(
                         b"--frame\r\n"
-                        b"Content-Type: image/jpeg\r\n"
+                        b"Content-Type: image/png\r\n"
                         b"Content-Length: " + str(len(frame)).encode() + b"\r\n\r\n" +
                         frame + b"\r\n"
                     )
