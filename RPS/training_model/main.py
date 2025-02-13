@@ -29,5 +29,5 @@ history = model.fit(
 )
 
 # Save the trained model
-model.save("RPS/rock_paper_scissors.h5")
+model.save("RPS/pretrained_models/rock_paper_scissors.h5")
 print("Model saved successfully.")
