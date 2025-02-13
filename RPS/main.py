@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 
-# Set dataset path
+# Set dataset paths
 DATASET_PATH = "RPS/data_collection/data_set"
 
 # Load data
