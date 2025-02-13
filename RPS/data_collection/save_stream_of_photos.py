@@ -59,5 +59,5 @@ def fetch_video_stream(save_directory):
     cv2.destroyAllWindows()
 
 # Example usage:
-save_directory = "xiao_setup/data_collection/data_set/scissors"
+save_directory = "RPS/data_collection/for_demo/scissors"
 fetch_video_stream(save_directory)
