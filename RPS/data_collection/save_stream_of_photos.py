@@ -13,6 +13,7 @@ def fetch_video_stream(save_directory):
     save_directory (str): The directory where frames will be saved.
     """
     url = "http://172.20.10.2"
+    name_of_frames = "scissors"
     frame_count = 0
 
     # Ensure the directory exists
@@ -42,7 +43,7 @@ def fetch_video_stream(save_directory):
             cv2.imshow("Video Stream", frame)
 
             # Save the frame
-            frame_filename = os.path.join(save_directory, f"frame_{frame_count:03d}.png")
+            frame_filename = os.path.join(save_directory, f"{name_of_frames}_frame_{frame_count:03d}.png")
             image.save(frame_filename)
             print(f"Saved: {frame_filename}")
 
@@ -58,5 +59,5 @@ def fetch_video_stream(save_directory):
     cv2.destroyAllWindows()
 
 # Example usage:
-save_directory = "xiao_setup/data_collection/data_set"
+save_directory = "xiao_setup/data_collection/data_set/scissors"
 fetch_video_stream(save_directory)
