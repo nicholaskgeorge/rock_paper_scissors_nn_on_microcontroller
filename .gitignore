@@ -1,7 +1,4 @@
-RPS/data_collection/data_set/
-RPS/data_collection/augmented_data_set/
-RPS/data_collection/for_demo/
+RPS/data_collection/data
 submission_organizing/
 demo_recordings/
-
 .venv/
