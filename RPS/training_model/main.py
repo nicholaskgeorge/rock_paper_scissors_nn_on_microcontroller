@@ -1,4 +1,3 @@
-import tensorflow as tf
 import sys
 import os
 
@@ -11,8 +10,8 @@ from model_setup.model import create_model
 from model_setup.utils import load_data
 
 # Set dataset paths
-train_data = "RPS/data_collection/data/augmented_training_data_set"
-val_data = "RPS/data_collection/data/val"
+train_data = "RPS/data_collection/data/augmented_training_data_set/"
+val_data = "RPS/data_collection/data/val/"
 
 # Load data
 train_data, val_data = load_data(train_data, val_data)
@@ -20,7 +19,7 @@ train_data, val_data = load_data(train_data, val_data)
 # Create and train model
 model = create_model()
 
-EPOCHS = 10
+EPOCHS = 1
 history = model.fit(
     train_data,
     validation_data=val_data,
@@ -29,5 +28,5 @@ history = model.fit(
 )
 
 # Save the trained model
-model.save("RPS/pretrained_models/rock_paper_scissors.h5")
+model.save("RPS/pretrained_models/rps.h5")
 print("Model saved successfully.")

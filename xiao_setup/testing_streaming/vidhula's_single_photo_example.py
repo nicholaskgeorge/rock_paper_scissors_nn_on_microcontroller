@@ -2,6 +2,8 @@ import camera
 import network
 import time
 import socket
+import emlearn_cnn_int8
+
 
 # Network credentials - replace with your details
 CAMERA_PARAMETERS = {
@@ -42,6 +44,9 @@ while not wlan.isconnected():
     time.sleep(1)
 
 print("Connected! IP Address:", wlan.ifconfig()[0])
+
+def make_inference():
+    
 
 
 def serve_frame():

@@ -1,11 +1,12 @@
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+import tf_keras as keras
+from tf_keras.models import Sequential
+from tf_keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, Input
 
 def create_model():
-    model = tf.keras.Sequential([
+    model = Sequential([
         # Conv layer 1
-        Conv2D(32, (3, 3), activation='relu', input_shape=(96, 96, 1)),  # Single channel
+        Input(shape=(96, 96, 1)),
+        Conv2D(32, (3, 3), activation='relu'),  # Use batch_input_shape,  # Single channel
         MaxPooling2D(2, 2),
         
         # Conv layer 2
@@ -26,7 +27,7 @@ def create_model():
 
     model.compile(
         loss="categorical_crossentropy",
-        optimizer="adam",
+        optimizer=keras.optimizers.SGD(learning_rate = 0.01),
         metrics=["accuracy"]
     )
 

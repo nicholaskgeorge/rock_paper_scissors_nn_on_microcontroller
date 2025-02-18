@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-import tensorflow as tf
+import tf_keras as tf
 
 def predict_image(image_path, model):
     image = cv2.imread(image_path)
