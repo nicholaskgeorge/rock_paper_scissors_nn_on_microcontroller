@@ -1,4 +1,4 @@
-import tensorflow as tf
+import tf_keras as tf
 import tensorflow_model_optimization as tfmot
 
 # Ensure all Keras imports are from tf.keras

@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from tf_keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 def load_data(train_path, val_path, img_size=(96, 96), batch_size=32):
     """
