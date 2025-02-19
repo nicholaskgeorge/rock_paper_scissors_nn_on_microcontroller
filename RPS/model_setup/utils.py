@@ -1,7 +1,10 @@
 import os
 import cv2
 import numpy as np
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow_model_optimization.python.core.keras.compat import keras
+
+# Use keras.preprocessing.image.ImageDataGenerator
+ImageDataGenerator = keras.preprocessing.image.ImageDataGenerator
 
 def load_data(train_path, val_path, img_size=(96, 96), batch_size=32):
     """
