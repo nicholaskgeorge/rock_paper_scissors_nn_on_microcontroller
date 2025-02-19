@@ -19,7 +19,7 @@ train_data, val_data = load_data(train_data, val_data)
 # Create and train model
 model = create_model()
 
-EPOCHS = 10
+EPOCHS = 4
 history = model.fit(
     train_data,
     validation_data=val_data,
