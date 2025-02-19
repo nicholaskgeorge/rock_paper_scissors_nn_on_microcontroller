@@ -65,12 +65,6 @@ classes = {
 while True:
     frame = cam.capture()
     if frame:
-        """
-        with open("image.bmp", "wb") as f:
-            f.write(frame)
-        with open("image.bmp", 'rb') as f:
-            img = f.read()
-        """
         
         # The pixel data starts at byte offset 1078
         pixel_data_offset = 1078
@@ -81,7 +75,7 @@ while True:
         # Convert the pixel data to an array of unsigned bytes
         pixels = array.array('B', pixel_data)
         
-        print(len(f"Length of input = {pixels}"))
+        #print(len(f"Length of input = {pixels}"))
         model.run(pixels, probabilities)
         out = argmax(probabilities)
         
@@ -89,5 +83,3 @@ while True:
         
     else:
         print("Failed to capture frame.")
-    
-    time.sleep(0.1)
