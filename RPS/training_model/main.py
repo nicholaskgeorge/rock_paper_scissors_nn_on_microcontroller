@@ -39,5 +39,5 @@ history = model.fit(
 )
 
 # Save the trained model
-model.save("RPS/pretrained_models/rps.h5")
+model.save("RPS/pretrained_models/rps_small.h5")
 print("Model saved successfully.")

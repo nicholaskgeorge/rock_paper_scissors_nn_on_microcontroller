@@ -15,11 +15,11 @@ def fetch_and_save_image(file_path):
     file_path (str): The full path, including the filename and extension, where the image will be saved.
     """
     # Replace with the actual IP address of your microcontroller
-    url = 'http://172.20.10.2'
+    url = 'http://172.20.10.3'
 
     try:
         # Send a GET request to the microcontroller's server
-        response = requests.get(url, stream=True)
+        response = requests.get(url, stream=True, timeout=5)
         response.raise_for_status()  # Check for request errors
 
         # Read the image data from the response
@@ -54,5 +54,5 @@ def fetch_and_save_image(file_path):
         print(f"Error processing the image: {e}")
 
 # Example usage:
-save_path = 'xiao_setup/data_colection/data_set/captured_image.png'  # Replace with your desired path
+save_path = 'RPS/data_collection/data/original_data_set/scissors/captured_image.png'  # Replace with your desired path
 fetch_and_save_image(save_path)

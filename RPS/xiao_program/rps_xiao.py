@@ -35,7 +35,7 @@ def argmax(arr):
     return idx_max
 
 # Load model
-MODEL_NAME = 'rps.tmdl'
+MODEL_NAME = 'rps_small.tmdl'
 
 cam = camera.Camera(**CAMERA_PARAMETERS)
 cam.init()
@@ -65,12 +65,10 @@ classes = {
 while True:
     frame = cam.capture()
     if frame:
-        
-        # The pixel data starts at byte offset 1078
-        pixel_data_offset = 1078
 
         # Extract the pixel data
-        pixel_data = frame[pixel_data_offset:pixel_data_offset + 9216]
+        pixel_data = frame[-9216:]
+        print(len(pixel_data))
 
         # Convert the pixel data to an array of unsigned bytes
         pixels = array.array('B', pixel_data)
