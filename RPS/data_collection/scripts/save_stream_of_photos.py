@@ -14,7 +14,7 @@ def fetch_video_stream(save_directory):
     save_directory (str): The directory where frames will be saved.
     """
     url = "http://172.20.10.3"
-    name_of_frames = "scissors"
+    name_of_frames = "rock"
     frame_count = 0
 
     # Ensure the directory exists
@@ -103,5 +103,5 @@ def fetch_video_stream(save_directory):
         cv2.destroyAllWindows()
 
 # Example usage:
-save_directory = "RPS/data_collection/data/original_data_set/scissors"
+save_directory = "RPS/data_collection/data/original_data_set/rock"
 fetch_video_stream(save_directory)

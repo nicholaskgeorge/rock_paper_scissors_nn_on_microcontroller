@@ -12,8 +12,8 @@ from model_setup.utils import load_data
 from tensorflow_model_optimization.python.core.keras.compat import keras
 
 # Set dataset paths
-train_data = "RPS/data_collection/data/augmented_training_data_set/"
-val_data = "RPS/data_collection/data/val/"
+train_data = "RPS/data_collection/data/augmented_32x32"
+val_data = "RPS/data_collection/data/val_32x32"
 
 # Load data
 train_data, val_data = load_data(train_data, val_data)
@@ -29,7 +29,7 @@ early_stopping = keras.callbacks.EarlyStopping(
     verbose=1
 )
 
-EPOCHS = 40
+EPOCHS = 10
 history = model.fit(
     train_data,
     validation_data=val_data,
@@ -39,5 +39,5 @@ history = model.fit(
 )
 
 # Save the trained model
-model.save("RPS/pretrained_models/rps_small.h5")
+model.save("RPS/pretrained_models/rps2.h5")
 print("Model saved successfully.")

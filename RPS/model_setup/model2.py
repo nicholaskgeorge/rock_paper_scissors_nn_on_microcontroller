@@ -3,10 +3,10 @@ from tensorflow.keras.layers import Conv2D, Flatten, Dense, Dropout, Input
 
 def create_model():
     model = Sequential([
-        Input(shape=(96, 96, 1)),
-        Conv2D(4, (3, 3), activation='relu', strides=(2, 2), padding='same'),
+        Input(shape=(32, 32, 1)),
         Conv2D(8, (3, 3), activation='relu', strides=(2, 2), padding='same'),
-        #Conv2D(32, (3, 3), activation='relu', strides=(2, 2), padding='same'),
+        Conv2D(16, (3, 3), activation='relu', strides=(2, 2), padding='same'),
+        Conv2D(32, (3, 3), activation='relu', strides=(2, 2), padding='same'),
         Flatten(),
         Dense(32, activation='relu'),
         Dropout(0.5),

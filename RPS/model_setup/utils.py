@@ -6,7 +6,7 @@ from tensorflow_model_optimization.python.core.keras.compat import keras
 # Use keras.preprocessing.image.ImageDataGenerator
 ImageDataGenerator = keras.preprocessing.image.ImageDataGenerator
 
-def load_data(train_path, val_path, img_size=(96, 96), batch_size=32):
+def load_data(train_path, val_path, img_size=(32, 32), batch_size=32):
     """
     Loads training and validation datasets using ImageDataGenerator.
 

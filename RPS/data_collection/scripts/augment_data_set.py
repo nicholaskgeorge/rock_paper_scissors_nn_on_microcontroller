@@ -61,6 +61,6 @@ def augment_images(src_folder, dest_folder):
     print(f"Dataset augmentation complete. New images saved in {dest_folder}")
 
 # Example usage
-original = "RPS/data_collection/data/original_data_set/scissors"
+original = "RPS/data_collection/data/train/scissors"
 destination = "RPS/data_collection/data/augmented_training_data_set/scissors"
 augment_images(original, destination)
