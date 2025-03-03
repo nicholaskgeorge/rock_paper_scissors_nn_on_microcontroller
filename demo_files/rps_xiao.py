@@ -37,24 +37,30 @@ def argmax(arr):
 # Load model
 MODEL_NAME = 'rps.tmdl'
 
+#start up camera
 cam = camera.Camera(**CAMERA_PARAMETERS)
 cam.init()
 cam.set_bmp_out(True)  # This will produce uncompressed images suitable for preprocessing
 
 frame = cam.capture()
 
+#check that can take picture with no issues
 if frame:
     print("Captured frame successfully! Length:", len(frame))
 else:
     print("Failed to capture frame.")
 
+#load in the model
 model = None
 with open(MODEL_NAME, 'rb') as f:
     model_data = array.array('B', f.read())
     model = emlearn_cnn_fp32.new(model_data)
 
+#get the number output posibilites
 out_length = model.output_dimensions()[0]
 probabilities = array.array('f', (-1 for _ in range(out_length)))
+
+#classes corresponding to their one hot encoding during training
 classes = {
             0:"paper",
             1:"rock",
