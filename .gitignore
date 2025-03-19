@@ -2,3 +2,4 @@ RPS/data_collection/data
 submission_organizing/
 demo_recordings/
 .venv/
+.llm_venv/
