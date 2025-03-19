@@ -78,16 +78,27 @@ def parse_url(url: str) -> str:
 
     """
 
-    page_title = None
+    segments = url.split('/')
+    segment_of_interest = None
 
-    ##############################################################################
-    # TODO: Implement your code here
-    ##############################################################################
+    for segment in segments:
+        if segment.count('-') >= 3:
+            # Check if this segment is the furthest from the root
+            segment_of_interest = segment
 
-    pass
+    if segment_of_interest:
+        # Remove words with six or more digits
+        words = segment_of_interest.split('-')
+        filtered_words = [word for word in words if not (word.isdigit() and len(word) >= 6)]
+        # Join the words with spaces and return
+        title = ' '.join(filtered_words).replace('-', ' ').lower().strip(' /.')
+        title = title.replace('.cms', '').replace('.html', '')
+        if title:
+            return title
+        else:
+            return None
 
-    ##############################################################################
-    return page_title
+    return None
 
 
 def read_gdelt(data_folder: str, filename: str) -> pd.DataFrame:
@@ -115,15 +126,36 @@ def read_gdelt(data_folder: str, filename: str) -> pd.DataFrame:
         pd.DataFrame, the cleaned dataframe
 
     """
-    df = pd.DataFrame()
-    ##############################################################################
-    # TODO: Implement your code here
-    ##############################################################################
-    # Hint: the resulting df should have 7 columns.
-    # Hint: Do GDELT files contain a header row?
+    file_path = os.path.join(data_folder, filename)
+    df = pd.read_csv(file_path, delimiter='\t', header=None, names=[
+        'GLOBALEVENTID', 'SQLDATE', 'MonthYear', 'Year', 'FractionDate', 'Actor1Code', 'Actor1Name',
+        'Actor1CountryCode', 'Actor1KnownGroupCode', 'Actor1EthnicCode', 'Actor1Religion1Code',
+        'Actor1Religion2Code', 'Actor1Type1Code', 'Actor1Type2Code', 'Actor1Type3Code', 'Actor2Code',
+        'Actor2Name', 'Actor2CountryCode', 'Actor2KnownGroupCode', 'Actor2EthnicCode',
+        'Actor2Religion1Code', 'Actor2Religion2Code', 'Actor2Type1Code', 'Actor2Type2Code',
+        'Actor2Type3Code', 'IsRootEvent', 'EventCode', 'EventBaseCode', 'EventRootCode', 'QuadClass',
+        'GoldsteinScale', 'NumMentions', 'NumSources', 'NumArticles', 'AvgTone', 'Actor1Geo_Type',
+        'Actor1Geo_FullName', 'Actor1Geo_CountryCode', 'Actor1Geo_ADM1Code', 'Actor1Geo_Lat',
+        'Actor1Geo_Long', 'Actor1Geo_FeatureID', 'Actor2Geo_Type', 'Actor2Geo_FullName',
+        'Actor2Geo_CountryCode', 'Actor2Geo_ADM1Code', 'Actor2Geo_Lat', 'Actor2Geo_Long',
+        'Actor2Geo_FeatureID', 'ActionGeo_Type', 'ActionGeo_FullName', 'ActionGeo_CountryCode',
+        'ActionGeo_ADM1Code', 'ActionGeo_Lat', 'ActionGeo_Long', 'ActionGeo_FeatureID', 'DATEADDED',
+        'SOURCEURL'
+    ], low_memory=False)
 
-    pass
+    # Set GLOBALEVENTID as index
+    df.set_index('GLOBALEVENTID', inplace=True)
 
-    ##############################################################################
+    # Remove rows with missing values
+    df.dropna(inplace=True)
+
+    # Sort by GLOBALEVENTID (which is now the index) to ensure smallest IDs come first
+    df = df.sort_index()
+    
+    # Remove duplicated SOURCEURL, keeping the row with the smallest GLOBALEVENTID
+    df = df.loc[~df.duplicated(subset=['SOURCEURL'], keep='first')]
+
+    # Add Text column parsed from SOURCEURL
+    df['Text'] = df['SOURCEURL'].apply(parse_url)
 
     return df
