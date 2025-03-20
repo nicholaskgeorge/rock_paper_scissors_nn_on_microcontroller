@@ -136,14 +136,13 @@ def read_gdelt(data_folder: str, filename: str) -> pd.DataFrame:
 
     2. Contains the following columns: SQLDATE (str), EventCode (int), QuadClass (int), GoldsteinScale (float),
     ActionGeo_FullName (str), and SOURCEURL (str).
-    Hint: You might find a constant in helpers.py useful.
 
     3. A new column called Text, which contains information parsed from the SOURCEURL column.
 
     4. Remove rows with missing or None values.
 
     5. Remove rows with duplicated SOURCEURL. If multiple rows share the same SOURCEURL,
-    keep the row with the smallest GLOBALEVENTID.
+       keep the row with the smallest GLOBALEVENTID.
 
     Args:
         data_folder (str): the folder containing the file
@@ -156,7 +155,7 @@ def read_gdelt(data_folder: str, filename: str) -> pd.DataFrame:
     file_path = os.path.join(data_folder, filename)
     
     # Read the CSV file (tab-separated values)
-    df = pd.read_csv(file_path, sep='\t', header=None, dtype={0: str}, low_memory = False)
+    df = pd.read_csv(file_path, sep='\t', header=None, dtype={0: str}, low_memory=False)
 
     # Make sure we only use keys that exist in the DataFrame
     valid_columns = [col for col in GDELT_COLUMNS.keys() if col < len(df.columns)]
@@ -173,21 +172,27 @@ def read_gdelt(data_folder: str, filename: str) -> pd.DataFrame:
     df.set_index('GLOBALEVENTID', inplace=True)
     
     # Create a new column called Text by parsing the SOURCEURL
-    # Using the external parse_url function
     df['Text'] = df['SOURCEURL'].apply(parse_url)
     
-    # Only drop rows with missing values in the required columns
-    # This is more selective than dropping all rows with any NaN
+    # Only drop rows with missing values in required columns
     required_columns = ['SQLDATE', 'EventCode', 'QuadClass', 'GoldsteinScale', 
                          'ActionGeo_FullName', 'SOURCEURL', 'Text']
     df.dropna(subset=required_columns, inplace=True)
     
-    # Sort rows numerically by GLOBALEVENTID (stored as string) to ensure we keep the row with smallest ID when dropping duplicates
+    # Convert GLOBALEVENTID to an integer for sorting
     df = df.reset_index()
     df['GLOBALEVENTID_int'] = df['GLOBALEVENTID'].astype(int)
+
+    # Sort by GLOBALEVENTID to ensure the smallest ID is first
     df = df.sort_values(by='GLOBALEVENTID_int')
-    df = df.drop_duplicates(subset=['SOURCEURL'])
+
+    # Drop duplicates, keeping the first occurrence (smallest GLOBALEVENTID)
+    df = df.drop_duplicates(subset=['SOURCEURL'], keep='first')
+
+    # Drop the temporary integer column
     df = df.drop(columns=['GLOBALEVENTID_int'])
+
+    # Restore index
     df = df.set_index('GLOBALEVENTID')
-    
+
     return df
