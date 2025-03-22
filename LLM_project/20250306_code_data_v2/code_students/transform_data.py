@@ -20,97 +20,65 @@ import pandas as pd
 
 
 def parse_url(url: str) -> str:
-    """URLs may contain information on what the webpage is about. This function
-    parses a URL to extract the "title" of a webpage, which is returned as a string.
-    We will use this function to parse URLs from the GDELT database.
-
+    """Parses a URL to extract the "title" of a webpage based on specific rules.
+    
     Args:
-        url (str): a URL
-
+        url (str): a URL.
+        
     Returns:
-        str: the title of the webpage
-
-    Note the following requirements:
-
-    - A URL is contains segments separated by "/". The segment of interest in the one with
-    3 or more dashes ("-") in the text as that is likely to contain the title of the webpage.
-    For brevity, we will refer to this segment as "the segment".
-
-    - If there are multiple segments with more than three dashes, "the segment" is furthest segment
-    from the root of the URL. For example, in the URL "https://{1}/{2}/{3}/{4}", the furthest segment is "4".
-
-    - If there are no segments with at least three dashes, return None.
-
-    - The segment must have fewer than 8 digits (< 8).
-
-    - Dashes in the segment are replaced with spaces.
-
-    - "Words" in the segment with six or more digits are removed.
-       Example:
-       "A999999" is removed.
-       "A99999" is kept.
-
-    - Words in the segment are separated by a single space.
-
-    - Replace ".cms" and ".html" in the string to ""
-
-    - The return string is in lowercase.
-
-    - The return string does not contain the following characters at the beginning or end of the string:
-      " ", "/", ".". In other words, there are no leading or trailing spaces, slashes, or full stops
-
-    - In an edge case where the segment is an empty string, return None.
-
-
-    Here are some examples:
-
-    1. https://www.yahoo.com/news/russian-military-convoy-blocked-entering.html
-    -> return "russian military convoy blocked entering"
-
-    2. https://www.yahoo.com/news/russian-military-convoy-blocked-entering-12345678.html
-    -> return None because the segment contains 8 or more digits
-
-    3. https://www.den-ver-post.com/2025/02/11/king-soopers-union-strike-lawsuit-restraining-order-A999999/
-    -> return "king soopers union strike lawsuit restraining order"
-
-    4. https://www.yahoo.com/news/russian---military--convoy-blocked-entering.html
-    -> return "russian military convoy blocked entering"
-
+        str: the title of the webpage or None if no valid title is found.
     """
-
+    # Split the URL into segments using '/' as the delimiter.
     segments = url.split('/')
-    segment_of_interest = None
-
-    for segment in reversed(segments):
-        if segment.count('-') >= 3:
-            # Check if this segment is the furthest from the root
-            segment_of_interest = segment
-            break
-
-    if segment_of_interest:
-        # Check if the segment contains fewer than 8 digits
-        if sum(c.isdigit() for c in segment_of_interest) < 8:
-            # Remove words with six or more digits
-            words = segment_of_interest.split('-')
-            filtered_words = [word for word in words if not (word.isdigit() and len(word) >= 6)]
-            # Join the words with spaces and return
-            title = ' '.join(filtered_words).replace('-', ' ').lower().strip(' /.')
-            title = title.replace('.cms', '').replace('.html', '')
-            if title:
-                return title
-            else:
-                return None
-
-    return None
-
-
-import pandas as pd
-import os
-from typing import Dict, Any
-
-import pandas as pd
-import os
-from typing import Dict, Any
+    
+    # Identify segments that contain at least 3 dashes.
+    candidate_segments = [seg for seg in segments if seg.count('-') >= 3]
+    if not candidate_segments:
+        return None
+    
+    # Select the furthest segment from the root (last candidate).
+    segment = candidate_segments[-1]
+    
+    # Remove '.cms' and '.html' substrings from the segment.
+    segment = segment.replace(".cms", "").replace(".html", "")
+    
+    # If the segment becomes empty after removals, return None.
+    if not segment:
+        return None
+    
+    # Check overall digit count in the segment; must be fewer than 8.
+    total_digits = sum(1 for char in segment if char.isdigit())
+    if total_digits >= 8:
+        return None
+    
+    # Replace all dashes with spaces.
+    segment = segment.replace('-', ' ')
+    
+    # Split the segment into words (automatically handles multiple spaces).
+    words = segment.split()
+    
+    # Remove words that contain six or more digits.
+    cleaned_words = []
+    for word in words:
+        digit_count = sum(1 for ch in word if ch.isdigit())
+        if digit_count >= 6:
+            continue
+        cleaned_words.append(word)
+    
+    # Join the words with a single space.
+    result = ' '.join(cleaned_words)
+    
+    # Convert to lowercase.
+    result = result.lower()
+    
+    # Remove leading or trailing spaces, slashes, or periods.
+    result = result.strip(" /.")
+    
+    # If the result is empty after processing, return None.
+    if not result:
+        return None
+    
+    return result
 
 import pandas as pd
 import os
@@ -128,71 +96,84 @@ GDELT_COLUMNS = {
     57: 'SOURCEURL'
 }
 
+
+import os
+import pandas as pd
+
 def read_gdelt(data_folder: str, filename: str) -> pd.DataFrame:
     """
-    Given a raw CSV file, create a dataframe with the following characteristics:
+    Given a raw CSV file (without headers), create a dataframe with the following characteristics:
 
     1. Set GLOBALEVENTID (str) as the index of the dataframe.
-
-    2. Contains the following columns: SQLDATE (str), EventCode (int), QuadClass (int), GoldsteinScale (float),
-    ActionGeo_FullName (str), and SOURCEURL (str).
-
+    2. Contains the following columns (with proper types): 
+       SQLDATE (str), EventCode (int), QuadClass (int), GoldsteinScale (float),
+       ActionGeo_FullName (str), and SOURCEURL (str).
     3. A new column called Text, which contains information parsed from the SOURCEURL column.
-
     4. Remove rows with missing or None values.
-
     5. Remove rows with duplicated SOURCEURL. If multiple rows share the same SOURCEURL,
        keep the row with the smallest GLOBALEVENTID.
 
     Args:
-        data_folder (str): the folder containing the file
-        filename (str): the name of the file to read
+        data_folder (str): the folder containing the file.
+        filename (str): the name of the file to read.
 
     Returns:
-        pd.DataFrame, the cleaned dataframe
+        pd.DataFrame: the cleaned dataframe.
     """
-    # Construct the full file path
-    file_path = os.path.join(data_folder, filename)
+    # Construct the full file path.
+    filepath = os.path.join(data_folder, filename)
     
-    # Read the CSV file (tab-separated values)
-    df = pd.read_csv(file_path, sep='\t', header=None, dtype={0: str}, low_memory=False)
-
-    # Make sure we only use keys that exist in the DataFrame
-    valid_columns = [col for col in GDELT_COLUMNS.keys() if col < len(df.columns)]
-    selected_columns = {k: GDELT_COLUMNS[k] for k in valid_columns}
-    df = df[valid_columns].rename(columns=selected_columns)
+    # Read the CSV file with no header; the file is tab-separated.
+    df_raw = pd.read_csv(filepath, sep="\t", header=None, engine='python')
     
-    # Convert column types
-    df['EventCode'] = df['EventCode'].astype(int)
-    df['QuadClass'] = df['QuadClass'].astype(int)
-    df['GoldsteinScale'] = df['GoldsteinScale'].astype(float)
-    df['SQLDATE'] = df['SQLDATE'].astype(object)
+    # Based on the GDELT format, select the required columns by their positions:
+    # 0: GLOBALEVENTID, 1: SQLDATE, 26: EventCode, 29: QuadClass, 30: GoldsteinScale,
+    # 50: ActionGeo_FullName, 57: SOURCEURL.
+    df = pd.DataFrame({
+        "GLOBALEVENTID": df_raw.iloc[:, 0],
+        "SQLDATE": df_raw.iloc[:, 1],
+        "EventCode": df_raw.iloc[:, 26],
+        "QuadClass": df_raw.iloc[:, 29],
+        "GoldsteinScale": df_raw.iloc[:, 30],
+        "ActionGeo_FullName": df_raw.iloc[:, 50],
+        "SOURCEURL": df_raw.iloc[:, 57]
+    })
     
-    # Set GLOBALEVENTID as index
-    df.set_index('GLOBALEVENTID', inplace=True)
+    # Convert columns to appropriate types.
+    df["SQLDATE"] = df["SQLDATE"].astype(str)
+    df["EventCode"] = df["EventCode"].astype(int)
+    df["QuadClass"] = df["QuadClass"].astype(int)
+    df["GoldsteinScale"] = df["GoldsteinScale"].astype(float)
+    df["ActionGeo_FullName"] = df["ActionGeo_FullName"].astype(str)
+    df["SOURCEURL"] = df["SOURCEURL"].astype(str)
     
-    # Create a new column called Text by parsing the SOURCEURL
-    df['Text'] = df['SOURCEURL'].apply(parse_url)
+    # Create the new 'Text' column by parsing the SOURCEURL.
+    # Assumes that the function parse_url(url: str) -> str is defined in the same module.
+    df["Text"] = df["SOURCEURL"].apply(parse_url)
     
-    # Only drop rows with missing values in required columns
-    required_columns = ['SQLDATE', 'EventCode', 'QuadClass', 'GoldsteinScale', 
-                         'ActionGeo_FullName', 'SOURCEURL', 'Text']
-    df.dropna(subset=required_columns, inplace=True)
+    # Remove rows with any missing or None values.
+    df = df.dropna()
     
-    # Convert GLOBALEVENTID to an integer for sorting
-    df = df.reset_index()
-    df['GLOBALEVENTID_int'] = df['GLOBALEVENTID'].astype(int)
-
-    # Sort by GLOBALEVENTID to ensure the smallest ID is first
-    df = df.sort_values(by='GLOBALEVENTID_int')
-
-    # Drop duplicates, keeping the first occurrence (smallest GLOBALEVENTID)
-    df = df.drop_duplicates(subset=['SOURCEURL'], keep='first')
-
-    # Drop the temporary integer column
-    df = df.drop(columns=['GLOBALEVENTID_int'])
-
-    # Restore index
-    df = df.set_index('GLOBALEVENTID')
-
+    # Remove duplicate SOURCEURL rows:
+    # Convert GLOBALEVENTID to int for numerical sorting and deduplication.
+    df["GLOBALEVENTID_int"] = df["GLOBALEVENTID"].astype(int)
+    df = df.sort_values(by="GLOBALEVENTID_int")
+    df = df.drop_duplicates(subset="SOURCEURL", keep="first")
+    df = df.drop(columns=["GLOBALEVENTID_int"])
+    
+    # Set GLOBALEVENTID (as string) as the index.
+    df = df.set_index("GLOBALEVENTID")
+    
     return df
+
+# Example usage:
+if __name__ == "__main__":
+    # Update these paths as needed.
+    data_folder = "path/to/data_folder"
+    filename = "20250212.export.CSV"
+    
+    # Ensure that the parse_url function is defined in this module.
+    df_cleaned = read_gdelt(data_folder, filename)
+    print(df_cleaned.head())
+
+
